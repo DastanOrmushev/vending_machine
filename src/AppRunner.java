@@ -13,6 +13,7 @@ public class AppRunner {
 
     private static boolean isExit = false;
     private final CardPaymentProcessor cardPaymentProcessor;
+    private String paymentMethod;
 
     private AppRunner() {
         products.addAll(new Product[]{
@@ -38,7 +39,7 @@ public class AppRunner {
         print("Выберите метод оплаты: ");
         print("1 - Монеты");
         print("2 - Банковская карта");
-        String paymentMethod = fromConsole();
+        paymentMethod = fromConsole();
 
         switch (paymentMethod) {
             case "1":
@@ -52,6 +53,16 @@ public class AppRunner {
         }
     }
 
+    private UniversalArray<Product> getAllowedProducts() {
+        UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
+        for (int i = 0; i < products.size(); i++) {
+            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+                allowProducts.add(products.get(i));
+            }
+        }
+        return allowProducts;
+    }
+
     private void handleCoinPayment() {
         print("В автомате доступны:");
         showProducts(products);
@@ -62,24 +73,13 @@ public class AppRunner {
     }
 
     private void handleCardPayment() {
-        print("Введите сумму для оплаты: ");
-        int amount = Integer.parseInt(fromConsole());
-        if (cardPaymentProcessor.processPayment(amount)) {
-            print("Оплата прошла успешно. Баланс на карте: " + cardPaymentProcessor.getBalance());
-        } else {
-            print("Недостаточно средств на карте.");
-        }
-    }
-
-
-    private UniversalArray<Product> getAllowedProducts() {
+        print("В автомате доступны:");
+        showProducts(products);
+        print("Баланс на карте: " + cardPaymentProcessor.getBalance());
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
-        for (int i = 0; i < products.size(); i++) {
-            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
-                allowProducts.add(products.get(i));
-            }
-        }
-        return allowProducts;
+        allowProducts.addAll(getAllowedProducts().toArray());
+        chooseAction(allowProducts);
+        print("Обновленный баланс на карте: " + cardPaymentProcessor.getBalance());
     }
 
     private void chooseAction(UniversalArray<Product> products) {
@@ -95,8 +95,21 @@ public class AppRunner {
         try {
             for (int i = 0; i < products.size(); i++) {
                 if (products.get(i).getActionLetter().equals(ActionLetter.valueOf(action.toUpperCase()))) {
-                    coinAcceptor.setAmount(coinAcceptor.getAmount() - products.get(i).getPrice());
-                    print("Вы купили " + products.get(i).getName());
+                    if ("1".equals(paymentMethod)) {
+                        if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+                            coinAcceptor.setAmount(coinAcceptor.getAmount() - products.get(i).getPrice());
+                            print("Вы купили " + products.get(i).getName());
+                        } else {
+                            print("Недостаточно средств.");
+                        }
+                    } else if ("2".equals(paymentMethod)) {
+                        if (cardPaymentProcessor.processPayment(products.get(i).getPrice())) {
+                            print("Оплата прошла успешно. Баланс на карте: " + cardPaymentProcessor.getBalance());
+                            print("Вы купили " + products.get(i).getName());
+                        } else {
+                            print("Недостаточно средств на карте.");
+                        }
+                    }
                     break;
                 }
             }
@@ -108,8 +121,6 @@ public class AppRunner {
                 chooseAction(products);
             }
         }
-
-
     }
 
     private void showActions(UniversalArray<Product> products) {
