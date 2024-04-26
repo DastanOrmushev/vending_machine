@@ -52,6 +52,25 @@ public class AppRunner {
         }
     }
 
+    private void handleCoinPayment() {
+        print("В автомате доступны:");
+        showProducts(products);
+        print("Монет на сумму: " + coinAcceptor.getAmount());
+        UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
+        allowProducts.addAll(getAllowedProducts().toArray());
+        chooseAction(allowProducts);
+    }
+
+    private void handleCardPayment() {
+        print("Введите сумму для оплаты: ");
+        int amount = Integer.parseInt(fromConsole());
+        if (cardPaymentProcessor.processPayment(amount)) {
+            print("Оплата прошла успешно. Баланс на карте: " + cardPaymentProcessor.getBalance());
+        } else {
+            print("Недостаточно средств на карте.");
+        }
+    }
+
 
     private UniversalArray<Product> getAllowedProducts() {
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
