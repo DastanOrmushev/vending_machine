@@ -10,6 +10,7 @@ public class CardPaymentProcessor {
     public int getBalance() {
         return balance;
     }
+
     public boolean processPayment(int amount) {
         if (balance >= amount) {
             balance -= amount;
