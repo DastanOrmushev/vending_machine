@@ -12,6 +12,7 @@ public class AppRunner {
     private final CoinAcceptor coinAcceptor;
 
     private static boolean isExit = false;
+    private final CardPaymentProcessor cardPaymentProcessor;
 
     private AppRunner() {
         products.addAll(new Product[]{
@@ -23,6 +24,7 @@ public class AppRunner {
                 new Pistachios(ActionLetter.G, 130)
         });
         coinAcceptor = new CoinAcceptor(100);
+        cardPaymentProcessor = new CardPaymentProcessor(500);
     }
 
     public static void run() {
@@ -33,16 +35,23 @@ public class AppRunner {
     }
 
     private void startSimulation() {
-        print("В автомате доступны:");
-        showProducts(products);
+        print("Выберите метод оплаты: ");
+        print("1 - Монеты");
+        print("2 - Банковская карта");
+        String paymentMethod = fromConsole();
 
-        print("Монет на сумму: " + coinAcceptor.getAmount());
-
-        UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
-        allowProducts.addAll(getAllowedProducts().toArray());
-        chooseAction(allowProducts);
-
+        switch (paymentMethod) {
+            case "1":
+                handleCoinPayment();
+                break;
+            case "2":
+                handleCardPayment();
+                break;
+            default:
+                print("Недопустимый выбор. Попробуйте еще раз.");
+        }
     }
+
 
     private UniversalArray<Product> getAllowedProducts() {
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
