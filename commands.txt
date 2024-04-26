@@ -1,0 +1,12 @@
+git branch -для просмотра веток
+git branch home_work_25 - создал новую ветку
+git checkout home_work_25 - перключился на ветку home_work_25
+git branch - после чего, просмотрел и убедился что нахожусь в ветке home_work_25.
+git status - для просмтора статуса
+git add src/model/CardPaymentProcessor.java
+git commit -m " created fields in the class and constructor into class CardPaymentProcessor "
+git push origin home_work_25
+git log
+git merge
+
+
